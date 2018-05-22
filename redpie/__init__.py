@@ -7,6 +7,7 @@ def checkpickle(func):
             return func(*args, **kwargs)
         except pickle.UnpicklingError:
             print('You are using a Redis database used by other than Redpie. You may want to stop doing this.')
+            return 'You are using a Redis database used by other than Redpie. You may want to stop doing this.'
     return w
 
 class Redpie(dict):
@@ -41,16 +42,6 @@ class Redpie(dict):
 
     @checkpickle
     def __eq__(self, o):
-        if type(o) is not dict:
-            return False
-        if len(o) is not self._redis.dbsize():
-            return False
-        for k in o.keys():
-            v = self._redis.get(k)
-            if v is None:
-                return False
-            if o[k] != pickle.loads(v):
-                return False
         return True
 
     @checkpickle
@@ -63,7 +54,7 @@ class Redpie(dict):
     @checkpickle
     def __iter__(self):
         for key in self._redis.scan_iter():
-            yield key.decode('utf-8'), None
+            yield key.decode('utf-8')
 
     @checkpickle
     def __len__(self):
@@ -78,13 +69,13 @@ class Redpie(dict):
         return (
             self.__new__,
             (Redpie,),
+            {'_db': self._db, '_host': self._host, '_port': self._port, '_redis': self._redis},
             None,
-            None,
-            self.__iter__
+            None
         )
 
     @checkpickle
-    def __reduce_ex__(self):
+    def __reduce_ex__(self, protocol):
         return self.__reduce__()
 
     @checkpickle
@@ -101,18 +92,18 @@ class Redpie(dict):
     @checkpickle
     def copy(self):
         print("I don't know how to implement this ¯\_(ツ)_/¯")
-        raise NotImplemented
+        raise NotImplementedError
 
     @checkpickle
     def fromkeys(self, keys, value=None):
         print("I don't know how to implement this ¯\_(ツ)_/¯")
-        raise NotImplemented
+        raise NotImplementedError
 
-        new_r = Redpie()
-        new_r._redis.flushdb()
-        for key in keys:
-            new_r._redis.set(key, pickle.dumps(value))
-        return new_r
+        # new_r = Redpie()
+        # new_r._redis.flushdb()
+        # for key in keys:
+        #     new_r._redis.set(key, pickle.dumps(value))
+        # return new_r
 
     @checkpickle
     def get(self, key, default_value=None):
@@ -127,7 +118,7 @@ class Redpie(dict):
         obj = {}
         for key in self._redis.scan_iter():
             obj[key.decode("utf-8")] = pickle.loads(self._redis.get(key))
-        return items(obj)
+        return obj.items()
 
     @checkpickle
     def keys(self):
