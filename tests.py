@@ -1,11 +1,13 @@
 import pytest
 from redpie import Redpie
 
+
 @pytest.fixture
 def r():
     r = Redpie(10)
     r.clear()
     return r
+
 
 def test_all(r):
     r['qwe'] = 2

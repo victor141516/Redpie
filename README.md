@@ -1,6 +1,14 @@
-"""
-This modules allows you to use redis just like a Python dictionary
-Example:
+# Redpie
+
+Use redis just like a Python dictionary
+
+## How to use
+
+### Installation
+
+    $ pip install redpie
+
+### Usage
 
     from redpie import Redpie
 
@@ -16,7 +24,4 @@ Example:
 
     >>> print(r['and even more complex things']())
     <requests.sessions.Session object at 0x10c68d5c0>
-"""
 
-from .redpie import Redpie
-__version__ = "0.0.1"
